@@ -13,3 +13,4 @@ __pycache__/*
 
 # Per-project virtualenvs
 .conda*/
+data/
