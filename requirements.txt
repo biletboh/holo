@@ -1,4 +1,9 @@
+# conda
 pandas
 ipython
-openpyxl
-nltk
+# pip
+openpyxl==3.0.7
+nltk==3.6.2
+tokenize-uk==0.2.0
+requests==2.25.1
+git+https://github.com/Desklop/Uk_Stemmer
