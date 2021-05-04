@@ -33,7 +33,8 @@ def ua_tokenize(text):
         tokens = tokenize_words(lemma)
         for token in tokens:
             stemmed = stemmer.stem_word(token)
-            word_list.append(stemmed)
+            if stemmed not in word_list:
+                word_list.append(stemmed)
     return word_list
 
 
@@ -43,21 +44,31 @@ def word_frequency(text, concept):
     return fd[concept]
 
 
-def read_data(sheet_name):
-    data = pd.read_excel("data/articles.xlsx", sheet_name=sheet_name)
-    return data
-
-
-def process_data():
-    data = read_data("Історична правда")
+def gather_statistics():
+    data = pd.read_excel("data/articles.xlsx", sheet_name="Історична правда")
     data.dropna(how="all", axis=1, inplace=True)
     concepts = ua_tokenize(CONCEPTS)
     for concept in concepts:
         data[concept] = data["Текст"].apply(word_frequency, args=(concept,))
     data.to_excel(
-        "data/result.xlsx", sheet_name="Історична правда", index=False
+        "data/articles_statistics.xlsx",
+        sheet_name="Історична правда",
+        index=False,
+    )
+
+
+def aggregate_statistics():
+    data = pd.read_excel(
+        "data/articles_statistics.xlsx", sheet_name="Історична правда"
+    )
+    columns = ["Рік"] + ua_tokenize(CONCEPTS)
+    timeline = data[columns].groupby("Рік").sum()
+    timeline.to_excel(
+        "data/timeline_statistics.xlsx",
+        sheet_name="Історична правда",
     )
 
 
 if __name__ == "__main__":
-    process_data()
+    gather_statistics()
+    aggregate_statistics()
