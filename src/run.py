@@ -7,6 +7,9 @@ import logging
 import sys
 
 
+from analyze import gather_statistics, aggregate_statistics
+
+
 __author__ = "Bohdan Biletskyi"
 __copyright__ = "Bohdan Biletskyi"
 __license__ = "MIT"
@@ -82,8 +85,12 @@ def main(args):
     """
     args = parse_args(args)
     setup_logging(args.loglevel)
-    _logger.debug("Starting crazy calculations...")
+    _logger.debug("Starting script...")
     print(f"{args.path} {args.language} {args.aggregate}")
+    if not args.aggregate:
+        gather_statistics(args.path)
+    aggregate_statistics()
+
     _logger.info("Script ends here")
 
 

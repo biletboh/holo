@@ -44,26 +44,22 @@ def word_frequency(text, concept):
     return fd[concept]
 
 
-def gather_statistics():
-    data = pd.read_excel("data/articles.csv")
+def gather_statistics(path):
+    data = pd.read_csv(path)
     data.dropna(how="all", axis=1, inplace=True)
     concepts = ua_tokenize(CONCEPTS_UA)
     for concept in concepts:
         data[concept] = data["Текст"].apply(word_frequency, args=(concept,))
-    data.to_excel(
-        "data/articles_statistics.xlsx",
-        sheet_name="Історична правда",
+    data.to_csv(
+        "data/statistics.csv",
         index=False,
     )
 
 
 def aggregate_statistics():
-    data = pd.read_excel(
-        "data/articles_statistics.xlsx", sheet_name="Історична правда"
-    )
+    data = pd.read_csv("data/statistics.csv")
     columns = ["Рік"] + ua_tokenize(CONCEPTS_UA)
     timeline = data[columns].groupby("Рік").sum()
-    timeline.to_excel(
-        "data/timeline_statistics.xlsx",
-        sheet_name="Історична правда",
+    timeline.to_csv(
+        "data/timeline_statistics.csv",
     )
