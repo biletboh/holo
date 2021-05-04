@@ -11,7 +11,7 @@ nltk.download("punkt")
 stemmer = UkStemmer()
 
 
-CONCEPTS = "колаборація, співпраця, нацисти, допомога, євреї, порятунок, жертви, голодомор, польський, табір, смерть, концентраційний"
+CONCEPTS_UA = "колаборація, співпраця, нацисти, допомога, євреї, порятунок, жертви, голодомор, польський, табір, смерть, концентраційний"
 
 
 def clean_text(text):
@@ -45,9 +45,9 @@ def word_frequency(text, concept):
 
 
 def gather_statistics():
-    data = pd.read_excel("data/articles.xlsx", sheet_name="Історична правда")
+    data = pd.read_excel("data/articles.csv")
     data.dropna(how="all", axis=1, inplace=True)
-    concepts = ua_tokenize(CONCEPTS)
+    concepts = ua_tokenize(CONCEPTS_UA)
     for concept in concepts:
         data[concept] = data["Текст"].apply(word_frequency, args=(concept,))
     data.to_excel(
@@ -61,14 +61,9 @@ def aggregate_statistics():
     data = pd.read_excel(
         "data/articles_statistics.xlsx", sheet_name="Історична правда"
     )
-    columns = ["Рік"] + ua_tokenize(CONCEPTS)
+    columns = ["Рік"] + ua_tokenize(CONCEPTS_UA)
     timeline = data[columns].groupby("Рік").sum()
     timeline.to_excel(
         "data/timeline_statistics.xlsx",
         sheet_name="Історична правда",
     )
-
-
-if __name__ == "__main__":
-    gather_statistics()
-    aggregate_statistics()
