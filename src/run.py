@@ -32,9 +32,15 @@ def parse_args(args):
         description="Analyze articles data and gather statistics"
     )
     parser.add_argument(
-        "path", help="Path to the initial data csv file.", type=str
+        "-p", "--path", help="Path to the initial data csv file.", type=str
     )
-    parser.add_argument("language", help="Language code: pl or ua", type=str)
+    parser.add_argument(
+        "-l",
+        "--language",
+        help="Language code: pl or ua",
+        type=str,
+        default="ua",
+    )
     parser.add_argument(
         "-a",
         "--aggregate",
@@ -86,10 +92,12 @@ def main(args):
     args = parse_args(args)
     setup_logging(args.loglevel)
     _logger.debug("Starting script...")
+
     print(f"{args.path} {args.language} {args.aggregate}")
-    if not args.aggregate:
-        gather_statistics(args.path)
-    aggregate_statistics()
+    if args.aggregate:
+        aggregate_statistics(args.language)
+    else:
+        gather_statistics(args.path, args.language)
 
     _logger.info("Script ends here")
 

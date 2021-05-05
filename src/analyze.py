@@ -1,64 +1,56 @@
-import re
 import pandas as pd
 import nltk
-import requests
 
-from tokenize_uk import tokenize_words
-from uk_stemmer import UkStemmer
+from tokenizers import ua_tokenizer, pl_tokenizer
 
 
 nltk.download("punkt")
-stemmer = UkStemmer()
 
 
 CONCEPTS_UA = "колаборація, співпраця, нацисти, допомога, євреї, порятунок, жертви, голодомор, польський, табір, смерть, концентраційний"
 
-
-def clean_text(text):
-    text = re.sub(r"""['’"`�]""", "", text)
-    text = re.sub(r"""([0-9])([\u0400-\u04FF]|[A-z])""", r"\1 \2", text)
-    text = re.sub(r"""([\u0400-\u04FF]|[A-z])([0-9])""", r"\1 \2", text)
-    text = re.sub(r"""[\-.,:+*/_]""", " ", text)
-    return text
+CONCEPTS_PL = "antysemicki, holocaust"
 
 
-def ua_tokenize(text):
-    text = clean_text(text)
-    response = requests.post(
-        "http://localhost:8080/lemmatize/", json={"text": text}
-    ).json()
-    lemmatized = response["lemmatizedSentences"]
-    word_list = []
-    for lemma in lemmatized:
-        tokens = tokenize_words(lemma)
-        for token in tokens:
-            stemmed = stemmer.stem_word(token)
-            if stemmed not in word_list:
-                word_list.append(stemmed)
-    return word_list
+def word_frequency(text, concept, language):
+    if language == "pl":
+        words: list[str] = pl_tokenizer(text)
+    else:
+        words: list[str] = ua_tokenizer(text)
 
-
-def word_frequency(text, concept):
-    words: list[str] = ua_tokenize(text.lower())
     fd = nltk.FreqDist(words)
     return fd[concept]
 
 
-def gather_statistics(path):
+def get_concepts(language):
+    if language == "pl":
+        concepts = pl_tokenizer(CONCEPTS_PL)
+    else:
+        concepts = ua_tokenizer(CONCEPTS_UA)
+    return concepts
+
+
+def gather_statistics(path, language):
     data = pd.read_csv(path)
     data.dropna(how="all", axis=1, inplace=True)
-    concepts = ua_tokenize(CONCEPTS_UA)
+
+    concepts = get_concepts(language)
+
     for concept in concepts:
-        data[concept] = data["Текст"].apply(word_frequency, args=(concept,))
+        data[concept] = data["Текст"].apply(
+            word_frequency, args=(concept, language)
+        )
+
     data.to_csv(
         "data/statistics.csv",
         index=False,
     )
 
 
-def aggregate_statistics():
+def aggregate_statistics(language):
     data = pd.read_csv("data/statistics.csv")
-    columns = ["Рік"] + ua_tokenize(CONCEPTS_UA)
+    concepts = get_concepts(language)
+    columns = ["Рік"] + concepts
     timeline = data[columns].groupby("Рік").sum()
     timeline.to_csv(
         "data/timeline_statistics.csv",
