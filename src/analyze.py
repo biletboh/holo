@@ -1,5 +1,6 @@
 import pandas as pd
 import nltk
+import matplotlib.pyplot as plt
 
 from tokenizers import ua_tokenizer, pl_tokenizer
 
@@ -55,3 +56,9 @@ def aggregate_statistics(language):
     timeline.to_csv(
         "data/timeline_statistics.csv",
     )
+
+
+def create_plot():
+    data = pd.read_csv("data/timeline_statistics.csv")
+    data.plot(x="Рік")
+    plt.show()

@@ -7,7 +7,11 @@ import logging
 import sys
 
 
-from analyze import gather_statistics, aggregate_statistics
+from analyze import (
+    gather_statistics,
+    aggregate_statistics,
+    create_plot,
+)
 
 
 __author__ = "Bohdan Biletskyi"
@@ -96,6 +100,7 @@ def main(args):
     print(f"{args.path} {args.language} {args.aggregate}")
     if args.aggregate:
         aggregate_statistics(args.language)
+        create_plot()
     else:
         gather_statistics(args.path, args.language)
 
