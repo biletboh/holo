@@ -8,11 +8,6 @@ from tokenizers import ua_tokenizer, pl_tokenizer
 nltk.download("punkt")
 
 
-CONCEPTS_UA = "колаборація, співпраця, нацисти, допомога, євреї, порятунок, жертви, голодомор, польський, табір, смерть, концентраційний"
-
-CONCEPTS_PL = "antysemicki, holocaust"
-
-
 def word_frequency(text, concept, language):
     if language == "pl":
         words: list[str] = pl_tokenizer(text)
@@ -23,19 +18,19 @@ def word_frequency(text, concept, language):
     return fd[concept]
 
 
-def get_concepts(language):
+def get_concepts(language, words):
     if language == "pl":
-        concepts = pl_tokenizer(CONCEPTS_PL)
+        concepts = pl_tokenizer(words)
     else:
-        concepts = ua_tokenizer(CONCEPTS_UA)
+        concepts = ua_tokenizer(words)
     return concepts
 
 
-def gather_statistics(path, language):
-    data = pd.read_csv(path)
+def gather_statistics(file_name, language, words):
+    data = pd.read_csv("data/" + file_name)
     data.dropna(how="all", axis=1, inplace=True)
 
-    concepts = get_concepts(language)
+    concepts = get_concepts(language, words)
 
     for concept in concepts:
         data[concept] = data["Текст"].apply(
@@ -48,17 +43,17 @@ def gather_statistics(path, language):
     )
 
 
-def aggregate_statistics(language):
+def aggregate_statistics(file_name, language, words):
     data = pd.read_csv("data/statistics.csv")
-    concepts = get_concepts(language)
+    concepts = get_concepts(language, words)
     columns = ["Рік"] + concepts
     timeline = data[columns].groupby("Рік").sum()
     timeline.to_csv(
-        "data/timeline_statistics.csv",
+        "data/timeline.csv",
     )
 
 
 def create_plot():
-    data = pd.read_csv("data/timeline_statistics.csv")
+    data = pd.read_csv("data/timeline.csv")
     data.plot(x="Рік")
     plt.show()

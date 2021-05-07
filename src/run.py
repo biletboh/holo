@@ -36,7 +36,7 @@ def parse_args(args):
         description="Analyze articles data and gather statistics"
     )
     parser.add_argument(
-        "-p", "--path", help="Path to the initial data csv file.", type=str
+        "-f", "--file", help="Path to the initial data csv file.", type=str
     )
     parser.add_argument(
         "-l",
@@ -46,9 +46,22 @@ def parse_args(args):
         default="ua",
     )
     parser.add_argument(
+        "-w",
+        "--words",
+        help="Key words to analyze.",
+        type=str,
+    )
+    parser.add_argument(
         "-a",
         "--aggregate",
         help="Only aggregate statistics",
+        type=bool,
+        default=False,
+    )
+    parser.add_argument(
+        "-p",
+        "--plot",
+        help="Create plot",
         type=bool,
         default=False,
     )
@@ -97,12 +110,15 @@ def main(args):
     setup_logging(args.loglevel)
     _logger.debug("Starting script...")
 
-    print(f"{args.path} {args.language} {args.aggregate}")
-    if args.aggregate:
-        aggregate_statistics(args.language)
+    if args.plot:
         create_plot()
+    elif args.words:
+        if args.aggregate:
+            aggregate_statistics(args.language, args.words)
+        else:
+            gather_statistics(args.file, args.language, args.words)
     else:
-        gather_statistics(args.path, args.language)
+        print("Please, provide words to analyze (-w)")
 
     _logger.info("Script ends here")
 
