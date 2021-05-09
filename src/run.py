@@ -11,6 +11,7 @@ from analyze import (
     gather_statistics,
     aggregate_statistics,
     create_plot,
+    find_most_common,
 )
 
 
@@ -66,6 +67,13 @@ def parse_args(args):
         default=False,
     )
     parser.add_argument(
+        "-mc",
+        "--most_common",
+        help="Find most common words",
+        type=bool,
+        default=False,
+    )
+    parser.add_argument(
         "-v",
         "--verbose",
         dest="loglevel",
@@ -112,9 +120,11 @@ def main(args):
 
     if args.plot:
         create_plot()
+    elif args.most_common:
+        find_most_common(args.file, args.language)
     elif args.words:
         if args.aggregate:
-            aggregate_statistics(args.language, args.words)
+            aggregate_statistics(args.file, args.language, args.words)
         else:
             gather_statistics(args.file, args.language, args.words)
     else:

@@ -10,6 +10,118 @@ from uk_stemmer import UkStemmer
 ua_stemmer = UkStemmer()
 pl_stemmer = StempelStemmer.default()
 
+STOP_WORDS = [
+    "у",
+    "в",
+    "як",
+    "на",
+    "і",
+    "та",
+    "з",
+    "не",
+    "що",
+    "до",
+    "бул",
+    "про",
+    "за",
+    "а",
+    "рок",
+    "це",
+    "так",
+    "с",
+    "для",
+    "йог",
+    "він",
+    "вон",
+    "й",
+    "сам",
+    "інш",
+    "від",
+    "є",
+    "ал",
+    "із",
+    "під",
+    "чи",
+    "був",
+    "також",
+    "по",
+    "том",
+    "то",
+    "їх",
+    "одн",
+    "ї",
+    "ми",
+    "и",
+    "тог",
+    "післ",
+    "я",
+    "кол",
+    "лиш",
+    "те",
+    "аб",
+    "р",
+    "сво",
+    "прот",
+    "б",
+    "де",
+    "навіт",
+    "мал",
+    "цьог",
+    "вже",
+    "однак",
+    "більш",
+    "хоч",
+    "стал",
+    "хто",
+    "можн",
+    "щоб",
+    "ж",
+    "буд",
+    "тут",
+    "зі",
+    "ці",
+    "між",
+    "все",
+    "них",
+    "тільк",
+    "зокрем",
+    "якщ",
+    "наш",
+    "їхн",
+    "тод",
+    "щод",
+    "жодн",
+    "перед",
+    "серед",
+    "тих",
+    "о",
+    "цьом",
+    "всі",
+    "ні",
+    "через",
+    "бо",
+    "цих",
+    "ті",
+    "своїх",
+    "мож",
+    "деяк",
+    "соб",
+    "ним",
+    "нас",
+    "себ",
+    "ця",
+    "всіх",
+    "адж",
+    "цієї",
+    "при",
+    "цю",
+    "би",
+    "нам",
+    "йом",
+    "ніж",
+    "цим",
+]
+
 
 def clean_text(text):
     text = re.sub(r"""['’"`�]""", "", text)
@@ -31,6 +143,19 @@ def ua_tokenizer(text):
         for token in tokens:
             stemmed = ua_stemmer.stem_word(token)
             if stemmed not in word_list:
+                word_list.append(stemmed)
+    return word_list
+
+
+def ua_tokenizer2(text):
+    text = clean_text(text.lower())
+
+    word_list = []
+    tokens = nltk.word_tokenize(text)
+    for token in tokens:
+        if token.isalpha():
+            stemmed = ua_stemmer.stem_word(token)
+            if stemmed not in STOP_WORDS:
                 word_list.append(stemmed)
     return word_list
 
